@@ -60,17 +60,19 @@ async function getJson<T>(url: string): Promise<T> {
   return body
 }
 
-function FiguresRow({ name, f }: { name: string; f: Figures }) {
+function FiguresRow({ name, f, isTotal = false }: { name: string; f: Figures; isTotal?: boolean }) {
+  // The total row mixes sums, a premium-weighted average loss ratio and a max; say which is which.
+  const tag = (kind: string) => (isTotal ? ` (${kind})` : '')
   return (
     <tr>
       <td>{name}</td>
-      <td>{count.format(f.policy_count)}</td>
-      <td>{dkk.format(f.earned_premium_dkk)}</td>
-      <td>{dkk.format(f.incurred_loss_dkk)}</td>
-      <td>{f.loss_ratio === null ? '–' : ratio.format(f.loss_ratio)}</td>
-      <td>{dkk.format(f.underwriting_result_dkk)}</td>
-      <td>{count.format(f.claim_count)}</td>
-      <td>{dkk.format(f.largest_claim_dkk)}</td>
+      <td>{count.format(f.policy_count) + tag('Total')}</td>
+      <td>{dkk.format(f.earned_premium_dkk) + tag('Total')}</td>
+      <td>{dkk.format(f.incurred_loss_dkk) + tag('Total')}</td>
+      <td>{f.loss_ratio === null ? '–' : ratio.format(f.loss_ratio) + tag('Avg')}</td>
+      <td>{dkk.format(f.underwriting_result_dkk) + tag('Total')}</td>
+      <td>{count.format(f.claim_count) + tag('Total')}</td>
+      <td>{dkk.format(f.largest_claim_dkk) + tag('Max')}</td>
     </tr>
   )
 }
@@ -106,7 +108,7 @@ function FiguresTable({
         </tbody>
         {total && (
           <tfoot>
-            <FiguresRow name={total[0]} f={total[1]} />
+            <FiguresRow name={total[0]} f={total[1]} isTotal />
           </tfoot>
         )}
       </table>
@@ -168,7 +170,7 @@ function App() {
     <main>
       <h1>Loss experience</h1>
 
-      <form onSubmit={handleSubmit}>
+      <form className="controls" onSubmit={handleSubmit}>
         <input
           value={portfolioId}
           onChange={(e) => setPortfolioId(e.target.value)}
@@ -178,13 +180,16 @@ function App() {
         <button type="submit" disabled={loading}>
           Show
         </button>
+      </form>
+
+      <div className="controls actions">
         <button type="button" onClick={handleAllPortfolios} disabled={loading}>
           Get loss experience statistics
         </button>
         <button type="button" onClick={handlePortfolioList} disabled={loading}>
           Show all portfolios
         </button>
-      </form>
+      </div>
 
       {loading && <p className="muted">Loading…</p>}
       {error && <p className="error">{error}</p>}

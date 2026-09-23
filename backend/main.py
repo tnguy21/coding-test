@@ -10,6 +10,12 @@ DATA = load_all()
 PORTFOLIOS = {p["portfolio_id"] for p in DATA["policies"].values()}
 
 
+@app.get("/portfolios")
+def list_portfolios():
+    # Same set that /portfolios/{portfolio_id}/loss-experience validates against.
+    return {"portfolios": sorted(PORTFOLIOS)}
+
+
 @app.get("/portfolios/{portfolio_id}/loss-experience")
 def loss(portfolio_id: str):
     if portfolio_id not in PORTFOLIOS:

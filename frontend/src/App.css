@@ -1,7 +1,11 @@
-form {
+.controls {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+  margin-bottom: 8px;
+}
+
+.actions {
   margin-bottom: 24px;
 }
 
@@ -34,6 +38,13 @@ td {
   border-bottom: 1px solid var(--border);
   text-align: right;
   white-space: nowrap;
+}
+
+/* Let long headers ("Underwriting result") and the total row's "(Total)" tags wrap onto a
+   second line; numbers contain no spaces, so they never split. */
+th,
+tfoot td {
+  white-space: normal;
 }
 
 th:first-child,
