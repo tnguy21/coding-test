@@ -37,6 +37,11 @@ def loss_ratio(incurred: float, premium: float) -> float | None:
     return incurred / premium if premium else None
 
 
+def underwriting_result(premium: float, incurred: float) -> float:
+    # Positive = premium covered claims (before expenses); negative = losing money on claims alone.
+    return premium - incurred
+
+
 # --- Putting it together -----------------------------------------------------
 
 def group_by_peril(policies: dict, claims: list[dict], portfolio_id: str) -> dict[str, tuple[list, list]]:
@@ -72,6 +77,7 @@ def summarise(policies: list[dict], claims: list[dict]) -> dict:
         "earned_premium_dkk": round(premium, 2),
         "incurred_loss_dkk": round(incurred, 2),
         "loss_ratio": round(ratio, 4) if ratio is not None else None,
+        "underwriting_result_dkk": round(underwriting_result(premium, incurred), 2),
         "claim_count": claim_count(claims),
         "largest_claim_dkk": round(largest_claim(claims), 2),
     }
@@ -83,6 +89,28 @@ def loss_experience(policies: dict, claims: list[dict], portfolio_id: str) -> di
 
 
 def portfolios_loss_experience(policies: dict, claims: list[dict]) -> list[dict]:
-    """Portfolio-level totals across all perils. Ordered by portfolio_id for now (ranking TBD)."""
+    """Portfolio-level totals across all perils, worst loss ratio first.
+
+    Worst first because the reader is an underwriter looking for loss-making business to act on.
+    Loss ratio is size-neutral, which is fair here: all portfolios are of similar size.
+    Ties (unlikely) fall back to portfolio_id so the order is deterministic.
+    """
     groups = group_by_portfolio(policies, claims)
-    return [{"portfolio_id": pid, **summarise(*groups[pid])} for pid in sorted(groups)]
+    rows = [{"portfolio_id": pid, **summarise(*groups[pid])} for pid in groups]
+    rows.sort(key=lambda r: (-r["loss_ratio"], r["portfolio_id"]))
+    return [{"rank": i, **row} for i, row in enumerate(rows, start=1)]
+
+
+def book_total(policies: dict, claims: list[dict]) -> dict:
+    """Whole-book figures: the average to compare portfolios against. Must equal the sum of portfolios."""
+    return summarise(list(policies.values()), claims)
+
+
+def rankings(portfolios: list[dict]) -> dict[str, str]:
+    """Short summary of the ranked list; each name states which direction is bad or good."""
+    return {
+        "worst_loss_ratio": portfolios[0]["portfolio_id"],
+        "best_loss_ratio": portfolios[-1]["portfolio_id"],
+        "smallest_underwriting_result": min(portfolios, key=lambda r: r["underwriting_result_dkk"])["portfolio_id"],
+        "largest_single_claim": max(portfolios, key=lambda r: r["largest_claim_dkk"])["portfolio_id"],
+    }
