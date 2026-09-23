@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 
 from load import load_all
-from metrics import loss_experience, portfolios_loss_experience
+from metrics import book_total, loss_experience, portfolios_loss_experience, rankings
 
 app = FastAPI()
 
@@ -23,7 +23,11 @@ def loss(portfolio_id: str):
 
 @app.get("/portfolios/loss-experience")
 def all_portfolios_loss():
+    portfolios = portfolios_loss_experience(DATA["policies"], DATA["claims"])
     return {
         "currency": "DKK",
-        "portfolios": portfolios_loss_experience(DATA["policies"], DATA["claims"]),
+        "ordering": "loss_ratio descending (worst first)",
+        "book_total": book_total(DATA["policies"], DATA["claims"]),
+        "rankings": rankings(portfolios),
+        "portfolios": portfolios,
     }
