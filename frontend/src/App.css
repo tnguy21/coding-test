@@ -1,0 +1,83 @@
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.actions {
+  margin-bottom: 24px;
+}
+
+input,
+button {
+  font: inherit;
+  padding: 6px 10px;
+}
+
+.error {
+  color: var(--error);
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+th,
+td {
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--border);
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* Let long headers ("Underwriting result") and the total row's "(Total)" tags wrap onto a
+   second line; numbers contain no spaces, so they never split. */
+th,
+tfoot td {
+  white-space: normal;
+}
+
+th:first-child,
+td:first-child {
+  text-align: left;
+}
+
+tfoot td {
+  font-weight: 600;
+  border-top: 2px solid var(--border);
+}
+
+.rankings {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  margin: 0 0 16px;
+}
+
+.rankings dt {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.rankings dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+.portfolio-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0;
+  list-style: none;
+}

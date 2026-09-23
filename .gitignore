@@ -219,3 +219,7 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Test data (must not be committed)
+data/
+candidate-pack/
